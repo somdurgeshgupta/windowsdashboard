@@ -1,0 +1,17 @@
+<main class="login-page">
+  <section class="login-panel">
+    <div class="brand-mark">DM</div>
+    <h1>Desktop Messenger</h1>
+    <p>Sign in to start private desktop messaging.</p>
+
+    @if (!isTauri()) {
+      <div id="google-btn"></div>
+    }
+    <button type="button" class="fallback-login" (click)="loginWithGoogle()">
+      {{ isTauri() ? 'Sign in with Google' : 'Reload Google Login' }}
+    </button>
+    @if (status()) {
+      <p class="login-status">{{ status() }}</p>
+    }
+  </section>
+</main>

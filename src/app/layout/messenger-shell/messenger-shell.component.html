@@ -1,0 +1,108 @@
+<main class="messenger-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      @if (currentUser()?.picture) {
+        <img class="profile-avatar" [src]="currentUser()?.picture" [alt]="currentUser()?.name || 'Current user'" />
+      } @else {
+        <div class="brand-mark">{{ (currentUser()?.name || 'DM').slice(0, 1) }}</div>
+      }
+      <div class="profile-summary">
+        <strong>{{ currentUser()?.name || 'Desktop Messenger' }}</strong>
+        <small>{{ currentUser()?.email || backendStatus() }}</small>
+        <span>{{ backendStatus() }}</span>
+      </div>
+    </div>
+
+    <label class="search">
+      <span>Search</span>
+      <input type="search" placeholder="Find people" />
+    </label>
+
+    <section class="user-list" aria-label="Users">
+      @if (listStatus()) {
+        <p class="empty-state">{{ listStatus() }}</p>
+      }
+      @for (user of users(); track user.id) {
+        <button
+          type="button"
+          class="user-row"
+          [class.active]="selectedUser()?.id === user.id"
+          (click)="selectUser(user)"
+        >
+          <span class="avatar-wrap">
+            @if (user.picture) {
+              <img class="avatar avatar-image" [src]="user.picture" [alt]="user.name" />
+            } @else {
+              <span class="avatar">{{ user.name.slice(0, 1) }}</span>
+            }
+            <span class="presence-dot" [class.online]="user.online"></span>
+          </span>
+          <span>
+            <strong>{{ user.name }}</strong>
+            <small>{{ user.online ? 'Online' : 'Away' }}</small>
+          </span>
+          @if (user.unread) {
+            <span class="unread-dot"></span>
+          }
+        </button>
+      }
+    </section>
+  </aside>
+
+  <section class="chat-panel">
+    <header class="chat-header">
+      <div>
+        <p>Conversation</p>
+        <h1>{{ selectedUser()?.name || 'Select a user' }}</h1>
+      </div>
+      <button type="button" (click)="logout()">Logout</button>
+    </header>
+
+    <div class="message-list">
+      @if (messageStatus()) {
+        <p class="empty-state">{{ messageStatus() }}</p>
+      }
+      @for (message of activeMessages(); track message.id) {
+        <article class="message" [class.mine]="isMine(message)">
+          <div class="message-bubble">
+            <strong>{{ senderName(message) }}</strong>
+            @if (message.type === 'FILE' && message.fileUrl) {
+              <a class="file-message" [href]="message.fileUrl" target="_blank" rel="noopener noreferrer" download>
+                @if (isImage(message)) {
+                  <img [src]="message.fileUrl" [alt]="message.text || 'Attached image'" />
+                }
+                <span>{{ message.text || 'Download file' }}</span>
+              </a>
+            } @else {
+              <p>{{ message.text }}</p>
+            }
+            <time>{{ message.createdAt | date: 'shortTime' }}</time>
+          </div>
+        </article>
+      }
+    </div>
+
+    <footer class="composer">
+      <label
+        class="drop-zone"
+        [class.dragging]="draggingFile()"
+        (dragover)="dragOver($event)"
+        (dragleave)="dragLeave($event)"
+        (drop)="dropFile($event)"
+      >
+        <input type="file" (change)="selectFile($any($event.target).files); $any($event.target).value = ''" />
+        <span>Drop files here or choose a file</span>
+      </label>
+      <div class="composer-row">
+        <input
+          type="text"
+          placeholder="Type a message"
+          [value]="draftMessage()"
+          (input)="updateDraft($any($event.target).value)"
+          (keydown.enter)="sendMessage()"
+        />
+        <button type="button" (click)="sendMessage()">Send</button>
+      </div>
+    </footer>
+  </section>
+</main>

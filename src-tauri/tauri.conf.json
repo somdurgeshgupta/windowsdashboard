@@ -13,10 +13,13 @@
     "windows": [
       {
         "title": "Desktop Messenger",
-        "width": 800,
-        "height": 600,
+        "width": 980,
+        "height": 680,
+        "minWidth": 760,
+        "minHeight": 540,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "center": true
       }
     ],
     "security": {
